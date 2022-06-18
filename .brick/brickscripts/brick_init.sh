@@ -4,6 +4,8 @@ RCFILE=.$(basename $SHELL)rc
 COMMENT="# Brick by Jacob Zimmerman"
 ALIAS="alias brick=./.brick/brickscripts/brick_startup.sh"
 
+ROOT_DIR=./../..
+
 if grep -Fxq "$ALIAS" ~/$RCFILE
 then
     echo "Brick Error: Brick is already initialized"

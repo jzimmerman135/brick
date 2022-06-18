@@ -1,0 +1,230 @@
+#!/bin/bash
+
+PROJ_PATH=.
+CALL_PATH=$PWD
+BRICKLIB=/usr/local/lib/brick
+
+function printerr () {
+    local bold=$(tput bold)
+    local nobold=$(tput sgr0)
+    >&2 echo "${bold}Brick Error:${nobold} $1"
+}
+
+function boldecho() {
+    local bold=$(tput bold)
+    local nobold=$(tput sgr0)
+    >&2 echo -e "${bold}$1${nobold} $2"
+}
+
+function redecho () {
+    local red='\033[0;31m'
+    local nored=$(tput sgr0)
+    >&2 echo -e "${red}${1}${nored} $2"
+}
+
+function greenecho () {
+    local green='\033[0;32m'
+    local nogreen=$(tput sgr0)
+    >&2 echo -e "${green}${1}${nogreen} $2"
+}
+
+function blueecho () {
+    local blue='\033[0;34m'
+    local noblue=$(tput sgr0)
+    >&2 echo -e "${blue}${1}${noblue} $2"
+}
+
+function checkargs () {
+    if [ $1 -lt $2 ]; then
+        printerr "Missing argument, $3"
+        exit 1
+    fi
+}
+
+function findpath() {
+    # locate the project directory
+    if [ -d .brick ]; then
+        PROJ_PATH=$PWD
+    else
+        while [ ! -d .brick ]
+        do
+            cd ..
+            if [ "$PWD" = "/" ]; then
+                printerr "Cannot run command outside of a brick project"
+                cd $CALL_PATH
+                exit 1
+            fi
+        done
+            PROJ_PATH=$PWD
+            cd $CALL_PATH
+    fi
+    # end of locate project directory
+}
+
+if [ $# -lt 1 ]; then
+    printerr "Must specify a command, try --help for info"
+    exit 1
+fi
+
+### brick new
+if [ $1 = "new" ]; then
+    checkargs $# 2 "provide the new project name"
+
+    mkdir $2
+    cp -r $BRICKLIB/bricktemplate/ ./$2
+	if [ $? -eq 0 ]; then
+    	echo "New project '$2' initiliazed. Good luck!"
+    	exit 0
+	else
+		printerr "New project could not be created, please investigate"
+		exit 1
+    fi
+fi
+# end of new
+
+### brick help
+if [ $1 = "--help" ]; then
+    boldecho "All brick commands:"
+    boldecho "---------------"
+    cat /usr/local/lib/brick/brickmessages/help.txt
+    exit 0
+fi
+# end of help
+
+### brick README
+if [ $1 = 'README' ]; then
+    cat /usr/local/lib/brick/brickmessages/README.txt
+    exit 0
+fi
+# end of README
+
+### brick add [file]
+### brick add test [file]
+if [ $1 = "add" ]; then
+    findpath
+    checkargs $# 2 "provide new file name"
+
+    # add a test
+    if [ $2 = "test" ]; then
+        checkargs $# 3 "provide new test name"
+
+        NEWTEST=${3%.*}
+        touch $PROJ_PATH/tests/${NEWTEST}.c
+        if [ $? -eq 0 ]; then # check test creation
+            cat $BRICKLIB/brickmessages/hello_test.c > $PROJ_PATH/tests/${NEWTEST}.c
+			echo "Added test '${NEWTEST}.c'"
+            exit 0
+        fi
+
+	elif [ $2 = "target" ]; then
+		checkargs $# 3 "provide new target name"
+
+		NEWTARGET=${3%.*}
+        touch $PROJ_PATH/src/mains/${NEWTARGET}.c
+        if [ $? -eq 0 ]; then # check test creation
+            echo "Added test '${NEWTARGET}.c'"
+            exit 0
+        fi
+
+    # not a test, add regular files
+    else
+        NEWFILE=${2%.*}
+        touch $PROJ_PATH/src/${NEWFILE}.c $PROJ_PATH/include/${NEWFILE}.h
+        if [ $? -eq 0 ]; then # check file creation
+            echo "Added '${NEWFILE}.c' and '${NEWFILE}.h'"
+            exit 0
+        fi
+    fi
+
+    # file wasn't created properly
+    printerr "Files not added properly, please investigate"
+    exit 1
+fi
+# end of brick add
+
+### takes a program and argument as names
+function run_sequence () {
+	>&2 blueecho "Compiling targets:"
+	>&2 make targets || exit 1
+
+	blueecho "Running program:"
+	blueecho "----------------"
+
+	$1 $2
+
+	RUN_SUCCESS=$?
+	blueecho "----------------"
+	# check run
+    if [ $RUN_SUCCESS -eq 0 ]; then
+		greenecho "Brick: Run success!"
+        exit 0
+    else
+        redecho  "Brick: Run failed"
+        exit 1
+    fi
+}
+
+### brick run [args]
+### brick run -t [target] [args]
+if [ $1 = "run" ]; then
+    findpath
+    if [ $# -lt 2 ]; then # no args run target
+        run_sequence $PROJ_PATH/build/apps/target
+    elif [ $2 = '-t' ]; then # make and run an alternate executable with args
+        checkargs $# 3 "provide an executable name"
+        run_sequence $PROJ_PATH/build/apps/$3 ${@:4}
+    else
+        # make and run target executable with args
+        run_sequence $PROJ_PATH/build/apps/target ${@:2}
+    fi
+fi
+# end of run
+
+# takes a program and argument as name
+function run_test() {
+    blueecho "Running test '$(basename $1)':"
+	blueecho "----------------------------"
+
+	$1
+
+	RUN_SUCCESS=$?
+	blueecho "----------------------------"
+	# check run
+    if [ $RUN_SUCCESS -eq 0 ]; then
+		greenecho "Brick: Test '$(basename $1)' success!"
+    else
+        redecho  "Brick: Test '$(basename $1)' failed"
+    fi
+}
+
+### brick test [test_name]
+### brick test all
+if [ $1 = "test" ]; then
+	findpath
+    checkargs $# 2 "provide a test name"
+
+    if [ $2 = "all" ]; then
+
+        >&2 blueecho "Compiling all tests:"
+        >&2 make tests || exit 1
+
+        for test in $PROJ_PATH/tests/*.c; do
+            >&2 echo ""
+            run_test $PROJ_PATH/build/tests/$(basename $test .c)
+        done
+
+        exit 1
+    fi
+
+    >&2 blueecho "Compiling test:"
+    TESTNAME=$(basename $2 .c)
+	>&2 make ./build/tests/$TESTNAME || exit 1
+    run_test $PROJ_PATH/build/tests/$TESTNAME
+
+	exit 0
+fi
+
+
+### Command not recognized
+printerr "Command not recognized '$1', try --help for info"
+exit 1
