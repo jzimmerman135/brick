@@ -17,6 +17,11 @@ Purpose:
 	simplify some of C and make hassle, without preventing any normal features
 	from being used.
 
+Installation:
+=============
+
+        git clone https://github.com/jzimmerman135/brick.git
+        sudo ./brickinstall.sh
 
 Notes:
 ======
@@ -83,4 +88,3 @@ Commands:
 	-------------------------
 		Opens brick documentation viewer, or specify an argument to see
 	specific documentation about that argument.
-
