@@ -2,7 +2,7 @@
 CC := gcc
 
 # include paths
-IFLAGS = -Iinclude/ -I/usr/local/lib/brick/brickstdlib/include/
+IFLAGS = -Iinclude/ -I/usr/local/lib/brick/brickstdlib/include
 
 # compiler flags
 CFLAGS := -g -std=c99 -Wall -Werror -Wextra -Wfatal-errors -pedantic
@@ -13,7 +13,7 @@ OFLAGS := -O1 -flto
 DFLAGS := -DDEBUG -g3 -O0
 
 # link binaries
-LDFLAGS := -L/usr/local/lib/brick/brickstdlib
+LDFLAGS := -L/usr/local/lib/brick/brickstdlib/build
 LDLIBS :=
 
 # build directory
@@ -88,4 +88,3 @@ info:
 	@echo "[*] Tests:           ${TESTS}                             "
 	@echo "[*] Objects:         ${OBJECTS} ${TARG_OBJ} ${TEST_OBJ}   "
 	@echo "[*] Dependencies:    ${DEPENDENCIES}                      "
-
