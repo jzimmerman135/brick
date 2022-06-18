@@ -208,9 +208,9 @@ function run_test() {
 	blueecho "----------------------------"
 	# check run
     if [ $RUN_SUCCESS -eq 0 ]; then
-		greenecho "Brick: Test '$(basename $1)' success!"
+		greenecho "Brick: test '$(basename $1)' success!"
     else
-        redecho  "Brick: Test '$(basename $1)' failed"
+        redecho  "Brick: test '$(basename $1)' failed"
     fi
 }
 
