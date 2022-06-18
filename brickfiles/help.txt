@@ -1,0 +1,23 @@
+brick --help
+brick README
+
+brick new [project_name]
+
+brick add [filename]
+brick add test [filename]
+
+brick run [args]
+brick run -t [target_name] [args]
+
+brick test [test_name]
+brick test all
+
+brick make [target_name]
+
+brick install [bricklib_filename]
+brick uninstall [bricklib_filename]
+brick which [bricklib_filename]
+
+brick docs -add [item_name]
+brick docs -edit [item_name]
+brick docs [item_name]
