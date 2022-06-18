@@ -5,6 +5,8 @@ echo "Beginning installation"
 echo "Brick: Building project template"
 mkdir ./bricktemplate/build ./bricktemplate/tests ./bricktemplate/include
 mkdir ./bricktemplate/src ./bricktemplate/src/mains
+touch ./bricktemplate/src/mains/target.c
+touch ./bricktemplate/Makefile
 cat ./brickfiles/target.c > ./bricktemplate/src/mains/target.c
 cat ./brickfiles/Makefile > ./bricktemplate/Makefile
 
