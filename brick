@@ -93,7 +93,7 @@ fi
 
 ### brick README
 if [ $1 = 'README' ]; then
-    cat $BRICKLIB/brickfiles/README.txt
+    cat $BRICKLIB/brickfiles/README
     exit 0
 fi
 # end of README
