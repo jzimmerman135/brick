@@ -1,21 +1,27 @@
 #!/bin/bash
+head -n 9 README
+echo "Beginning installation"
 
-# build template
+echo "Brick: Building project template"
 mkdir ./bricktemplate/build ./bricktemplate/tests ./bricktemplate/include
 mkdir ./bricktemplate/src ./bricktemplate/src/mains
-mv ./bricktemplate/target.c ./bricktemplate/src/mains/target.c
+cat ./brickfiles/target.c > ./bricktemplate/src/mains/target.c
+cat ./brickfiles/Makefile > ./bricktemplate/Makefile
 
-# build .brick directory in template
-mkdir ./bricktemplate/.brick ./bricktemplate/.brick/documentation
+echo "Brick: Building .brick directory in template"
+mkdir ./bricktemplate/.brick ./bricktemplate/.brick/docs
+touch ./bricktemplate/.brick/docs/documentation
 cp README ./bricktemplate/.brick
-cp README ./brickmessages
+cp README ./brickfiles
 
-# build stdlib linking library
+echo "Brick: Building stdlib library"
 mkdir ./brickstdlib ./brickstdlib/include ./brickstdlib/build
 
-# move stuff deep down
+echo "Brick: Moving binaries and libraries into place"
 cp brick /usr/local/bin
 mkdir /usr/local/lib/brick
 cp -r bricktemplate /usr/local/lib/brick
 cp -r brickstdlib /usr/local/lib/brick
-cp -r brickmessages /usr/local/lib/brick
+cp -r brickfiles /usr/local/lib/brick
+
+echo "Brick: Installation complete"

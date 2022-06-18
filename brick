@@ -86,14 +86,14 @@ fi
 if [ $1 = "--help" ]; then
     boldecho "All brick commands:"
     boldecho "---------------"
-    cat /usr/local/lib/brick/brickmessages/help.txt
+    cat $BRICKLIB/brickfiles/help.txt
     exit 0
 fi
 # end of help
 
 ### brick README
 if [ $1 = 'README' ]; then
-    cat /usr/local/lib/brick/brickmessages/README.txt
+    cat $BRICKLIB/brickfiles/README.txt
     exit 0
 fi
 # end of README
@@ -111,7 +111,7 @@ if [ $1 = "add" ]; then
         NEWTEST=${3%.*}
         touch $PROJ_PATH/tests/${NEWTEST}.c
         if [ $? -eq 0 ]; then # check test creation
-            cat $BRICKLIB/brickmessages/hello_test.c > $PROJ_PATH/tests/${NEWTEST}.c
+            cat $BRICKLIB/brickfiles/hello_test.c > $PROJ_PATH/tests/${NEWTEST}.c
 			echo "Added test '${NEWTEST}.c'"
             exit 0
         fi
