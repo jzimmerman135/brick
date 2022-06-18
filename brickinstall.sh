@@ -33,4 +33,9 @@ cp -r bricktemplate /usr/local/lib/brick
 cp -r brickstdlib /usr/local/lib/brick
 cp -r brickfiles /usr/local/lib/brick
 
+echo "Brick: Cleaning up"
+rm -rf bricktemplate
+rm -rf brickstdlib
+rm ./brickfiles/README
+
 echo "Brick: Installation complete"

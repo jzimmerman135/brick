@@ -98,6 +98,14 @@ if [ $1 = 'README' ]; then
 fi
 # end of README
 
+### brick make
+if [ $1 = "make" ]; then
+    findpath
+    make -C $PROJ_PATH ${@:2}
+    exit 0
+fi
+# end of brick make
+
 ### brick add [file]
 ### brick add test [file]
 if [ $1 = "add" ]; then
@@ -145,7 +153,7 @@ fi
 ### takes a program and argument as names
 function run_sequence () {
 	>&2 blueecho "Compiling targets:"
-	>&2 make targets || exit 1
+	>&2 brick make targets || exit 1
 
 	blueecho "Running program:"
 	blueecho "----------------"
@@ -206,7 +214,7 @@ if [ $1 = "test" ]; then
     if [ $2 = "all" ]; then
 
         >&2 blueecho "Compiling all tests:"
-        >&2 make tests || exit 1
+        >&2 brick make tests || exit 1
 
         for test in $PROJ_PATH/tests/*.c; do
             >&2 echo ""
@@ -218,7 +226,7 @@ if [ $1 = "test" ]; then
 
     >&2 blueecho "Compiling test:"
     TESTNAME=$(basename $2 .c)
-	>&2 make ./build/tests/$TESTNAME || exit 1
+	>&2 brick make ./build/tests/$TESTNAME || exit 1
     run_test $PROJ_PATH/build/tests/$TESTNAME
 
 	exit 0
