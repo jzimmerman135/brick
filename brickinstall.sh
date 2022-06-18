@@ -1,8 +1,14 @@
 #!/bin/bash
+if [ "$EUID" -ne 0 ]
+  then echo "Please use sudo ./brickuninstall"
+  exit 1
+fi
+
 head -n 9 README
 echo "Beginning installation"
 
 echo "Brick: Building project template"
+mkdir bricktemplate
 mkdir ./bricktemplate/build ./bricktemplate/tests ./bricktemplate/include
 mkdir ./bricktemplate/src ./bricktemplate/src/mains
 touch ./bricktemplate/src/mains/target.c
@@ -17,7 +23,8 @@ cp README ./bricktemplate/.brick
 cp README ./brickfiles
 
 echo "Brick: Building stdlib library"
-mkdir ./brickstdlib ./brickstdlib/include ./brickstdlib/build
+mkdir brickstdlib
+mkdir ./brickstdlib/include ./brickstdlib/build
 
 echo "Brick: Moving binaries and libraries into place"
 cp brick /usr/local/bin
