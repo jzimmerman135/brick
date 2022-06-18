@@ -61,17 +61,25 @@ function findpath() {
     # end of locate project directory
 }
 
+### brick
 if [ $# -lt 1 ]; then
     printerr "Must specify a command, try --help for info"
     exit 1
 fi
+# end of missing argument
 
 ### brick new
 if [ $1 = "new" ]; then
     checkargs $# 2 "provide the new project name"
 
+    if [ -d $2 ]; then
+        printerr "'$@' already exists"
+        exit 1
+    fi
+
     mkdir $2
     cp -r $BRICKLIB/bricktemplate/ ./$2
+
 	if [ $? -eq 0 ]; then
     	echo "New project '$2' initiliazed. Good luck!"
     	exit 0
@@ -104,10 +112,11 @@ if [ $1 = "make" ]; then
     make -C $PROJ_PATH ${@:2}
     exit 0
 fi
-# end of brick make
+# end of make
 
 ### brick add [file]
 ### brick add test [file]
+### brick add target [file]
 if [ $1 = "add" ]; then
     findpath
     checkargs $# 2 "provide new file name"
@@ -145,7 +154,7 @@ if [ $1 = "add" ]; then
     fi
 
     # file wasn't created properly
-    printerr "Files not added properly, please investigate"
+    printerr "files not added properly, please investigate"
     exit 1
 fi
 # end of brick add
@@ -231,7 +240,7 @@ if [ $1 = "test" ]; then
 
 	exit 0
 fi
-
+# end of test
 
 ### Command not recognized
 printerr "Command not recognized '$1', try --help for info"

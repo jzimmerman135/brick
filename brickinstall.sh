@@ -13,7 +13,7 @@ fi
 # Show the brick title ascii art
 head -n 9 README
 
-echo "Beginning installation"
+echo "Beginning installation:"
 
 echo "Brick: Building project template"
 # make bricktemplate with tests include src src/mains and build subdirectories
