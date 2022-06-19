@@ -280,11 +280,11 @@ if [ $1 = "link" ]; then
 
     mkdir $INC_DIR
 
-    cp $PROJ_PATH/build/lib/${PROJNAME}.a $BRICKLIB/brickstdlib/lib/
+    cp $PROJ_PATH/build/lib/${PROJNAME}.a $BRICKLIB/brickstdlib/lib/lib${PROJNAME}.a
 
     cp -r $PROJ_PATH/include/ $INC_DIR
 
-    >&2 boldecho "Brick: $PROJNAME.a" "installed, find in $BRICKLIB/brickstdlib)"
+    >&2 boldecho "Brick: lib$PROJNAME.a" "installed, find in $BRICKLIB/brickstdlib)"
 
     exit 0
 fi
@@ -292,12 +292,12 @@ fi
 
 ### brick unlink [library]
 if [ $1 = "unlink" ]; then
+    checkargs $# 2 "provide a library name"
+
     if [ "$EUID" -ne 0 ]; then
       printerr "must use sudo brick unlink [library]"
       exit 1
     fi
-
-    checkargs $# 2 "provide a library name"
 
     read -p "Are you sure you want to unlink $2? [y/n] " -n 1 -r
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -315,6 +315,7 @@ if [ $1 = "unlink" ]; then
     rm $2.a
 
     cd $CALL_PATH
+    echo ""
     boldecho "Brick: $2" "is deleted from brickstdlib"
     exit 0
 fi
