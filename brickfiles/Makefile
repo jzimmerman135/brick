@@ -1,8 +1,13 @@
 # compiler
 CC := gcc
 
+# external library files
+# include files and object files
+ILIBS := $(wildcard /usr/local/lib/brick/brickstdlib/include/*)
+OLIBS := $(wildcard /usr/local/lib/brick/brickstdlib/lib/*)
+
 # include paths
-IFLAGS = -Iinclude/ -I/usr/local/lib/brick/brickstdlib/include
+IFLAGS := -Iinclude/ $(patsubst %,-I%,$(ILIBS))
 
 # compiler flags
 CFLAGS := -g -std=c99 -Wall -Werror -Wextra -Wfatal-errors -pedantic
@@ -13,8 +18,8 @@ OFLAGS := -O1 -flto
 DFLAGS := -DDEBUG -g3 -O0
 
 # link binaries
-LDFLAGS := -L/usr/local/lib/brick/brickstdlib/build
-LDLIBS :=
+LDFLAGS := -L/usr/local/lib/brick/brickstdlib/include
+LDLIBS := $(patsubst /usr/local/lib/brick/brickstdlib/include/%,-l%,$(OLIBS))
 
 # build directory
 BUILD := ./build
@@ -62,7 +67,8 @@ $(TEST_DIR)/%: $(OBJECTS) $(OBJ_DIR)/tests/%.o
 .PHONY: all build clean
 
 learn:
-	@echo $(TESTS)
+	@echo $(LDLIBS)
+	@echo $(LDFLAGS)
 
 build:
 	@mkdir -p $(APP_DIR)
@@ -73,7 +79,11 @@ debug: CFLAGS += $(DFLAGS)
 debug: all
 
 release: CFLAGS += $(OFLAGS)
-release: all
+release: targets $(OBJECTS)
+
+%.a: clean release
+%.a: $(OBJECTS)
+	ar rcs $@ $^
 
 clean:
 	-@rm -rvf $(OBJ_DIR)/*

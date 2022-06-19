@@ -235,12 +235,33 @@ if [ $1 = "test" ]; then
 
     >&2 blueecho "Compiling test:"
     TESTNAME=$(basename $2 .c)
-	>&2 brick make ./build/tests/$TESTNAME || exit 1
+
+    >&2 brick make ./build/tests/$TESTNAME || exit 1
+
     run_test $PROJ_PATH/build/tests/$TESTNAME
 
 	exit 0
 fi
 # end of test
+
+### brick install [libraryname]
+if [ $1 = "install" ]; then
+    findpath
+    checkargs $# 2 "provide an object file name"
+
+    PROJNAME=$(basename $PROJ_PATH)
+    >&2 brick make ${PROJNAME}.a || exit 1
+
+    cp $PROJ_PATH/${PROJNAME}.a $BRICKLIB/brickstdlib/lib
+
+    for header in $PROJ_PATH/include/*.h; do
+        cp  $BRICKLIB/brickstdlib/include
+
+    >&2 boldecho "Brick: $2" "installed, find in $BRICKLIB/brickstdlib)"
+
+    exit 0
+fi
+# end of install
 
 ### Command not recognized
 printerr "Command not recognized '$1', try --help for info"

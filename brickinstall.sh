@@ -41,7 +41,7 @@ echo "Brick: Building stdlib library"
 
 # build an empty stdlib placeholder directory
 mkdir brickstdlib
-mkdir ./brickstdlib/include ./brickstdlib/build
+mkdir ./brickstdlib/include ./brickstdlib/lib
 
 echo "Brick: Moving binaries and libraries into place"
 
