@@ -5,9 +5,9 @@
 # that there is nothing malicious
 
 # Requires Superuser to change /usr/local/
-if [ "$EUID" -ne 0 ]
-  then echo "Please use sudo ./brickuninstall"
-  exit 1
+if [ "$EUID" -ne 0 ]; then
+    echo "Please use sudo ./brickuninstall"
+    exit 1
 fi
 
 # Show the brick title ascii art

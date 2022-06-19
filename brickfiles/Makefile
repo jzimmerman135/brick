@@ -44,7 +44,7 @@ TESTS    := $(patsubst tests/%.c,$(TEST_DIR)/%,$(TEST_SRC))
 PROJNAME := $(notdir $(PWD))
 
 # everything
-all: build targets tests library
+all: build targets tests
 
 targets: $(TARGETS)
 
@@ -95,6 +95,7 @@ clean:
 	-@rm -rvf $(OBJ_DIR)/*
 	-@rm -rvf $(APP_DIR)/*
 	-@rm -rvf $(TEST_DIR)/*
+	-@rm -rvf $(LIB_DIR)/*
 
 info:
 	@echo "[*] Application dir: ${APP_DIR}                           "

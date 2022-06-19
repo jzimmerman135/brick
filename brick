@@ -41,6 +41,20 @@ function checkargs () {
     fi
 }
 
+function checkempty () {
+    if [ ! "$(ls -A $1)" ]; then
+        printerr "$2"
+        exit 1
+    fi
+}
+
+function checkexists () {
+    if [ ! -f $1 ]; then
+        printerr "$2"
+        exit 1
+    fi
+}
+
 function findpath() {
     # locate the project directory
     if [ -d .brick ]; then
@@ -186,12 +200,16 @@ function run_sequence () {
 if [ $1 = "run" ]; then
     findpath
     if [ $# -lt 2 ]; then # no args run target
+        checkexists $PROJ_PATH/src/mains/target.c "target.c missing"
         run_sequence $PROJ_PATH/build/apps/target
     elif [ $2 = '-t' ]; then # make and run an alternate executable with args
         checkargs $# 3 "provide an executable name"
+        checkexists $PROJ_PATH/src/mains/${3}.c "$3.c not found in src/mains"
+
         run_sequence $PROJ_PATH/build/apps/$3 ${@:4}
     else
         # make and run target executable with args
+        checkexists $PROJ_PATH/src/mains/target.c "target.c missing"
         run_sequence $PROJ_PATH/build/apps/target ${@:2}
     fi
 fi
@@ -221,6 +239,7 @@ if [ $1 = "test" ]; then
     checkargs $# 2 "provide a test name"
 
     if [ $2 = "all" ]; then
+        checkempty $PROJ_PATH/tests "tests not found"
 
         >&2 blueecho "Compiling all tests:"
         >&2 brick make tests || { printerr "compilation failed"; exit 1; }
@@ -244,24 +263,62 @@ if [ $1 = "test" ]; then
 fi
 # end of test
 
-### brick install [libraryname]
-if [ $1 = "install" ]; then
-    findpath
-    checkargs $# 2 "provide an object file name"
+### brick link
+if [ $1 = "link" ]; then
+    if [ "$EUID" -ne 0 ]; then
+      printerr "must use sudo brick link"
+      exit 1
+    fi
 
+    findpath
+
+    >&2 blueecho "Compiling library:"
     PROJNAME=$(basename $PROJ_PATH)
-    >&2 brick make ${PROJNAME}.a || { printerr "compilation failed"; exit 1; }
+    >&2 brick make library || { printerr "compilation failed"; exit 1; }
+
+    INC_DIR=$BRICKLIB/brickstdlib/include/$PROJNAME
+
+    mkdir $INC_DIR
 
     cp $PROJ_PATH/build/lib/${PROJNAME}.a $BRICKLIB/brickstdlib/lib/
 
-    for header in $PROJ_PATH/include/*.h; do
-        cp  $BRICKLIB/brickstdlib/include
+    cp -r $PROJ_PATH/include/ $INC_DIR
 
-    >&2 boldecho "Brick: $2" "installed, find in $BRICKLIB/brickstdlib)"
+    >&2 boldecho "Brick: $PROJNAME.a" "installed, find in $BRICKLIB/brickstdlib)"
 
     exit 0
 fi
-# end of install
+# end of link
+
+### brick unlink [library]
+if [ $1 = "unlink" ]; then
+    if [ "$EUID" -ne 0 ]; then
+      printerr "must use sudo brick unlink [library]"
+      exit 1
+    fi
+
+    checkargs $# 2 "provide a library name"
+
+    read -p "Are you sure you want to unlink $2? [y/n] " -n 1 -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+
+    if [ $2 = "." ]; then
+        printerr "gtfo sneaky mf"
+        exit 1
+    fi;
+
+    cd $BRICKLIB/brickstdlib/include || exit 1
+    rm -rf $2
+    cd $BRICKLIB/brickstdlib/lib || exit 1
+    rm $2.a
+
+    cd $CALL_PATH
+    boldecho "Brick: $2" "is deleted from brickstdlib"
+    exit 0
+fi
+# end of unlink
 
 ### Command not recognized
 printerr "Command not recognized '$1', try --help for info"
