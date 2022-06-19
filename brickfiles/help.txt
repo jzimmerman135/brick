@@ -14,9 +14,9 @@ brick test all
 
 brick make [target_name]
 
-brick install [bricklib_filename]
-brick uninstall [bricklib_filename]
-brick which [bricklib_filename]
+brick link
+brick unlink [library]
+brick which [library]
 
 brick docs -add [item_name]
 brick docs -edit [item_name]

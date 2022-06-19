@@ -67,17 +67,13 @@ Commands:
 		Removes [file_name].c and [file_name].h if applicable. Will ask for
 	permission if non-empty (override with brick remove -f [file_name]).
 
-	brick include [brick_stdlib_file_name].h
+	brick link [brick_stdlib_file_name].h
 	----------------------------------------
 		Allows you to use brick library file, will install if not already
 	downloaded.
 
-	brick drop [brick_stdlib_file_name].h
+	brick unlink [brick_stdlib_file_name].h
 	-------------------------------------
-		Drop dependency on brick library file.
-
-	brick uninstall [brick_stdlib_file_name].h
-	------------------------------------------
 		Delete already installed brick standard library function.
 
 	brick docs add
