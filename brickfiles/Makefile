@@ -8,18 +8,19 @@ CFLAGS := -g -std=c99 -Wall -Werror -Wextra -Wfatal-errors -pedantic
 OFLAGS := -O1 -flto
 DFLAGS := -DDEBUG -g3 -O0
 
-# link to brickstdlib
 BRICKSTDLIB := /usr/local/lib/brick/brickstdlib
+
 # external library files
 # include files and object files
-ILIBS := $(wildcard $(BRICKSTDLIB)/include/*)
-OLIBS := $(notdir $(wildcard $(BRICKSTDLIB)/lib/*))
+LIBHEADERS := $(wildcard $(BRICKSTDLIB)/include/*)
+LIBFILES := $(notdir $(wildcard $(BRICKSTDLIB)/lib/*))
+
 # link binaries
 LDFLAGS := -L$(BRICKSTDLIB)/lib
-LDLIBS := $(patsubst lib%.a,-l%,$(OLIBS))
+LDLIBS := $(patsubst lib%.a,-l%,$(LIBFILES))
 
 # include paths
-IFLAGS := -Iinclude/ $(patsubst %,-I%,$(ILIBS))
+IFLAGS := -Iinclude/ $(patsubst %,-I%,$(LIBHEADERS))
 CFLAGS += $(IFLAGS)
 
 # build directory
@@ -78,7 +79,7 @@ $(LIB_DIR)/%.a: $(OBJECTS)
 .PHONY: all build clean
 
 learn:
-	@echo $(IFLAGS)
+	@echo $(LDLIBS)
 
 build:
 	@mkdir -p $(APP_DIR)
