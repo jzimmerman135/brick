@@ -1,31 +1,32 @@
 # compiler
 CC := gcc
 
-# external library files
-# include files and object files
-ILIBS := $(wildcard /usr/local/lib/brick/brickstdlib/include/*)
-OLIBS := $(wildcard /usr/local/lib/brick/brickstdlib/lib/*)
-
-# include paths
-IFLAGS := -Iinclude/ $(patsubst %,-I%,$(ILIBS))
-
 # compiler flags
 CFLAGS := -g -std=c99 -Wall -Werror -Wextra -Wfatal-errors -pedantic
-CFLAGS += $(IFLAGS)
 
 # optimization and debug flags
 OFLAGS := -O1 -flto
 DFLAGS := -DDEBUG -g3 -O0
 
+# external library files
+# include files and object files
+ILIBS := $(wildcard /usr/local/lib/brick/brickstdlib/include/*)
+OLIBS := $(wildcard /usr/local/lib/brick/brickstdlib/lib/*)
+
 # link binaries
 LDFLAGS := -L/usr/local/lib/brick/brickstdlib/include
 LDLIBS := $(patsubst /usr/local/lib/brick/brickstdlib/include/%,-l%,$(OLIBS))
+
+# include paths
+IFLAGS := -Iinclude/ $(patsubst %,-I%,$(ILIBS))
+CFLAGS += $(IFLAGS)
 
 # build directory
 BUILD := ./build
 OBJ_DIR  := $(BUILD)/objects
 APP_DIR  := $(BUILD)/apps
 TEST_DIR := $(BUILD)/tests
+LIB_DIR  := $(BUILD)/lib
 
 # source files
 SRC          := $(wildcard src/*.c)
@@ -40,50 +41,55 @@ TARGETS  := $(patsubst src/mains/%.c,$(APP_DIR)/%,$(TARG_SRC))
 TEST_SRC := $(wildcard tests/*.c)
 TESTS    := $(patsubst tests/%.c,$(TEST_DIR)/%,$(TEST_SRC))
 
+PROJNAME := $(notdir $(PWD))
+
 # everything
-all: build targets tests
+all: build targets tests library
 
 targets: $(TARGETS)
 
 tests: $(TESTS)
+
+library: $(LIB_DIR)/$(PROJNAME).a
 
 # objects compile
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -MMD -o $@
 
-# app compile
+# app link
 $(APP_DIR)/%: $(OBJECTS) $(OBJ_DIR)/src/mains/%.o
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
-# test compile
+# test link
 $(TEST_DIR)/%: $(OBJECTS) $(OBJ_DIR)/tests/%.o
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+# library link
+$(LIB_DIR)/%.a: $(OBJECTS)
+	@mkdir -p $(@D)
+	ar rcs $@ $^
 
 -include $(DEPENDENCIES)
 .PRECIOUS: $(OBJ_DIR)/%.o
 .PHONY: all build clean
 
 learn:
-	@echo $(LDLIBS)
-	@echo $(LDFLAGS)
+	@echo $(notdir $(PWD))
 
 build:
 	@mkdir -p $(APP_DIR)
 	@mkdir -p $(OBJ_DIR)
 	@mkdir -p $(TEST_DIR)
+	@mkdir -p $(LIB_DIR)
 
 debug: CFLAGS += $(DFLAGS)
 debug: all
 
 release: CFLAGS += $(OFLAGS)
-release: targets $(OBJECTS)
-
-%.a: clean release
-%.a: $(OBJECTS)
-	ar rcs $@ $^
+release: all
 
 clean:
 	-@rm -rvf $(OBJ_DIR)/*
