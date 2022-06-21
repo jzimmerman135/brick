@@ -277,14 +277,13 @@ if [ $1 = "link" ]; then
     >&2 brick make library || { printerr "compilation failed"; exit 1; }
 
     INC_DIR=$BRICKLIB/brickstdlib/include/$PROJNAME
+    LIB_DIR=$BRICKLIB/brickstdlib/lib
 
-    mkdir $INC_DIR
+    mkdir -p $INC_DIR
+    cp -p $PROJ_PATH/build/lib/${PROJNAME}.a $LIB_DIR/lib${PROJNAME}.a
+    cp -r -p $PROJ_PATH/include/ $INC_DIR
 
-    cp $PROJ_PATH/build/lib/${PROJNAME}.a $BRICKLIB/brickstdlib/lib/lib${PROJNAME}.a
-
-    cp -r $PROJ_PATH/include/ $INC_DIR
-
-    >&2 boldecho "Brick: lib$PROJNAME.a" "installed, find in $BRICKLIB/brickstdlib)"
+    >&2 boldecho "Brick: lib$PROJNAME.a" "installed, find in ${LIB_DIR}"
 
     exit 0
 fi
@@ -300,6 +299,7 @@ if [ $1 = "unlink" ]; then
     fi
 
     read -p "Are you sure you want to unlink $2? [y/n] " -n 1 -r
+    echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         exit 1
     fi
@@ -309,13 +309,15 @@ if [ $1 = "unlink" ]; then
         exit 1
     fi;
 
+    checkexists $BRICKLIB/brickstdlib/lib/lib$2.a "library not found"
+
     cd $BRICKLIB/brickstdlib/include || exit 1
     rm -rf $2
     cd $BRICKLIB/brickstdlib/lib || exit 1
-    rm $2.a
+    rm lib$2.a
 
     cd $CALL_PATH
-    echo ""
+
     boldecho "Brick: $2" "is deleted from brickstdlib"
     exit 0
 fi
