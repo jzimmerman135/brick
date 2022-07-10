@@ -75,8 +75,7 @@ $(LIB_DIR)/%.a: $(OBJECTS)
 	ar rcs $@ $^
 
 -include $(DEPENDENCIES)
-.PRECIOUS: $(OBJ_DIR)/%.o
-.PHONY: all build clean
+.PHONY: build clean
 
 learn:
 	@echo $(LDLIBS)

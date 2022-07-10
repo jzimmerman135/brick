@@ -87,7 +87,7 @@ if [ $1 = "new" ]; then
     checkargs $# 2 "provide the new project name"
 
     if [ -d $2 ]; then
-        printerr "'$@' already exists"
+        printerr "'$2' already exists"
         exit 1
     fi
 
@@ -153,7 +153,7 @@ if [ $1 = "add" ]; then
 		NEWTARGET=${3%.*}
         touch $PROJ_PATH/src/mains/${NEWTARGET}.c
         if [ $? -eq 0 ]; then # check test creation
-            echo "Added test '${NEWTARGET}.c'"
+            echo "Added target '${NEWTARGET}.c'"
             exit 0
         fi
 
@@ -274,7 +274,7 @@ if [ $1 = "link" ]; then
 
     >&2 blueecho "Compiling library:"
     PROJNAME=$(basename $PROJ_PATH)
-    >&2 brick make library || { printerr "compilation failed"; exit 1; }
+    >&2 brick make clean release library || { printerr "compilation failed"; exit 1; }
 
     INC_DIR=$BRICKLIB/brickstdlib/include/$PROJNAME
     LIB_DIR=$BRICKLIB/brickstdlib/lib
